@@ -6,10 +6,12 @@ import sqlite3
 con = sqlite3.connect("glnw.db", check_same_thread=False)
 cur = con.cursor()
 from flask import Flask, flash, redirect, render_template, request, session
-from flask_session.__init__ import Session
+from flask_session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
-
 from helpers import apology, login_required #lookup, gbp
+from flask_wtf.csrf import CSRFProtect
+
+csrf = CSRFProtect(app)
 
 
 
@@ -42,20 +44,24 @@ def login():
         password = request.form.get("password")
 
         if not username:
-            return apology("Error! Please provide username", 403)
+            flash("Error! Please provide username", "danger")
+            return redirect("/login")
 
         if not password:
-            return apology("Error! Please provide password", 403)
+            flash("Error! Please provide password", "danger")
+            return redirect("/login")
 
         # Query database for username
         row = cur.execute("SELECT id, hash FROM users WHERE username=?", (username,)).fetchone()
 
-        if row is None or not check_password_hash(row[1], password):  # hash is at index 1
-            return apology("Error! Invalid username and/or password, please try again", 403)
+        if not row or not check_password_hash(row[1], password):  # hash is at index 1
+            flash("Error! Invalid username and/or password, please try again", "danger")
+            return redirect("/login")
 
         # Remember which user has logged in
         session["user_id"] = row[0]
 
+        flash("Login successful!", "success")
         return redirect("/")
 
     return render_template("login.html")
@@ -95,20 +101,25 @@ def register():
         postcode = request.form.get("postcode").strip().upper()
 
         if password != confirmation:
-            return apology("Error! Passwords don't match, please try again.", 400)
+            flash("Error! Passwords don't match, please try again.", "danger")
+            return redirect("/register")
         
         if not postcode_format(postcode):
-            return apology("Error! Invalid Postcode format.", 400)
+            flash("Error! Invalid Postcode format.", "danger")
+            return redirect("/register")
         
         if not postcode_api(postcode):
-            return apology("Error! Postcode does not exist.", 400)
+            flash("Error! Postcode does not exist.", "danger")
+            return redirect("/register")
 
         if not all([username, password, confirmation, county, postcode, email]):
-            return apology("Error! One or more fields are blank", 400)
+            flash("Error! One or more fields are blank", "danger")
+            return redirect("/register")
 
         row = cur.execute("SELECT * FROM users WHERE username=?", (username,)).fetchone()
         if row:
-            return apology("Error! Username already exists.", 400)
+            flash("Error! Username already exists.", "danger")
+            return redirect("/register")
 
         # Insert new user
         cur.execute(
@@ -120,6 +131,7 @@ def register():
         # Retrieve new user's ID and log them in
         session["user_id"] = cur.execute("SELECT id FROM users WHERE username=?", (username,)).fetchone()[0]
 
+        flash("Registration successful! You are now logged in.", "success")
         return redirect("/")
     
     return render_template("register.html")

@@ -120,14 +120,16 @@ nav {
         </div>
     </nav>
 
-    {% if get_flashed_messages() %}
-        <header>
-            <div class="alert alert-primary mb-0 text-center" role="alert">
-                {{ get_flashed_messages() | join(" ") }}
-            </div>
-        </header>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show text-center" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
     {% endif %}
-
+  {% endwith %}
     <main class="container py-5 text-center">
         {% block main %}{% endblock %}
     </main>
