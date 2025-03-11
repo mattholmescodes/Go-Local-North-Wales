@@ -1,0 +1,41 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Register
+{% endblock %}
+
+{% block main %}
+<div class="image">
+    <img class="navbar-brand" src="static/Go (2).png" width="326px" height="186px" alt="Logo">
+</div>
+<br>
+<form action="/register" method="post">
+    <div class="mb-3">
+        <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="email" placeholder="Email" type="text">
+    </div>
+    <div class="mb-3">
+        <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="username" placeholder="Username" type="text">
+    </div>
+    <div class="mb-3">
+        <input class="form-control mx-auto w-auto" name="password" placeholder="Password" type="password">
+    </div>
+    <div class="mb-3">
+        <input class="form-control mx-auto w-auto" name="confirmation" placeholder="Confirm Password" type="password">
+    </div>
+    <div class="mb-3">
+        <input class="form-control mx-auto w-auto" name="postcode" placeholder="Postcode" type="text">
+    </div>
+    <div class="mb-3">
+        <select class="form-control mx-auto w-auto" name="county" id="county">
+            <option value="">Select County</option>
+            <option value="anglesey">Anglesey</option>
+            <option value="gwynedd">Gwynedd</option>
+            <option value="conwy">Conwy</option>
+            <option value="denbighshire">Denbighshire</option>
+            <option value="flintshire">Flintshire</option>
+            <option value="wrexham">Wrexham</option>
+        </select>
+    </div>
+    <button class="btn btn-primary" type="submit">Register</button>
+</form>
+{% endblock %}

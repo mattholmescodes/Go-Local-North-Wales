@@ -1,0 +1,13 @@
+Plan:
+
+Create an app where customers can select a type of product (e.g meat, eggs, milk etc.) and results for local producers selling the product appear in a table (max 10)
+in order of distance descending. Producers can add their products to the database for customers to select. 
+In order:
+CREATE TABLES
+Register users with name, email, password, county, postcode - create users table.
+Create homepage
+Create sell page with transactions table (user, product, price, time, county, postcode)
+Create buy page with same transactions table
+
+
+

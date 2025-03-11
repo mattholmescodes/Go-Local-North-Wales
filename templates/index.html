@@ -1,0 +1,14 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Homepage
+{% endblock %}
+
+{% block main %}
+    <h1 class="mt-4">Welcome to Go Local North Wales!</h1>
+    <br>
+    <div class="d-flex justify-content-center gap-3 mt-4">
+        <a href="{{ url_for('buy') }}" class="btn-custom btn-buy">Buy</a>
+        <a href="{{ url_for('sell') }}" class="btn-custom btn-sell">Sell</a>               
+    </div>
+{% endblock %}
