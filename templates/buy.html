@@ -1,0 +1,37 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Browse Products
+{% endblock %}
+
+{% block main %}
+<form method="post">
+    <input type="text" name="product" placeholder="Search for a product" required>
+    <button type="submit" class="btn btn-primary">Search</button>
+</form>
+
+{% if results %}
+    <table class="table mt-3">
+        <thead>
+            <tr>
+                <th>Seller</th>
+                <th>Product</th>
+                <th>Price (£)</th>
+                <th>Postcode</th>
+                <th>Distance (km)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in results %}
+                <tr>
+                    <td>{{ row.username }}</td>
+                    <td>{{ row.product }}</td>
+                    <td>£{{ row.price }}</td>
+                    <td>{{ row.postcode }}</td>
+                    <td>{{ row.distance }} km</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endif %}
+{% endblock %}
