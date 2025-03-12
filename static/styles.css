@@ -1,5 +1,40 @@
-img {
-    position: relative;
-    top: -48px;
+.navbar-brand img {
+    height: 50px;
+    width: auto;
 }
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+main {
+    flex: 1;
+}
+
+.footer {
+    padding: 10px 0;
+    text-align: center;
+    position: relative;
+    width: 100%;
+    font-size: 15px;
+}
+
+.footer-class {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px; 
+}
+
+/* Logo styling */
+.logo {
+    height: 40px;
+    width: auto;
+    display: block;
+    position: relative;
+    top: -9px;
+}
+
 
