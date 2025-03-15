@@ -1,0 +1,50 @@
+{% extends "layout.html" %}
+
+{% block title %}Sell{% endblock %}
+
+{% block main %}
+
+<h2>Sell a Product</h2>
+
+<!-- Form to add new product -->
+<form method="post">
+    <div class="mb-3">
+        <input type="text" name="product" placeholder="Product Name" class="form-control" required>
+    </div>
+    <div class="mb-3">
+        <input type="number" name="price" placeholder="Price (£)" step="0.01" class="form-control" required>
+    </div>
+    <div class="mb-3">
+        <input type="number" name="quantity" placeholder="Quantity" class="form-control" required>
+    </div>
+    <button type="submit" class="btn btn-success">List Product</button>
+</form>
+
+<!-- Show seller's current listings -->
+{% if listings %}
+    <h3 class="mt-4">Your Listings</h3>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Price</th>
+                <th>Quantity</th>
+                <th>Postcode</th>
+                <th>Added On</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for listing in listings %}
+            <tr>
+                <td>{{ listing[0] }}</td> 
+                <td>£{{ "%.2f"|format (listing[1]) }}</td> 
+                <td>{{ listing[2] }}</td> 
+                <td>{{ listing[3] }}</td> 
+                <td>{{ listing[4] }}</td> 
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endif %}
+
+{% endblock %}
