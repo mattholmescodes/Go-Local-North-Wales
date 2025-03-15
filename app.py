@@ -1,4 +1,6 @@
+from dotenv import load_dotenv
 import os
+
 
 import re
 import requests
@@ -24,7 +26,8 @@ Session(app)
 
 db = "sqlite:///glnw.db"
 
-GOOGLE_MAPS_API_KEY = "AIzaSyAIsztPFdHFaAUxo1hqEWK3jCkdvY5wfD8"
+load_dotenv()
+GOOGLE_MAPS_API_KEY = os.getenv("GOOGLE_MAPS_API_KEY")
 
 @app.after_request
 def after_request(response):
