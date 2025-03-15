@@ -12,6 +12,8 @@ from flask_session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
 from helpers import login_required #lookup, gbp
 from math import radians, cos, sin, asin, sqrt
+from helpers import login_required #lookup, gbp
+from math import radians, cos, sin, asin, sqrt
 
 
 # Configure application
