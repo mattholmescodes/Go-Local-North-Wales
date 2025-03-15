@@ -90,17 +90,18 @@ def postcode_api(postcode):
         return data.get("result", False)  # True if postcode is valid, False otherwise
     except requests.RequestException:
         return False  # If API fails, reject the postcode
-    
 def get_coordinates(postcode):
-    """Convert postcode into lat and long coordinates using Google Maps API"""
-
     url = f"https://maps.googleapis.com/maps/api/geocode/json?address={postcode}&key={GOOGLE_MAPS_API_KEY}"
     response = requests.get(url)
     data = response.json()
 
     if data["status"] == "OK":
         location = data["results"][0]["geometry"]["location"]
-        return location["lat"], location["lng"]
+        lat, lng = location["lat"], location["lng"]
+        print(f"Coordinates for {postcode}: {lat}, {lng}")  # Debugging
+        return float(lat), float(lng)  # Ensure they are floats
+    
+    print(f"Error fetching coordinates for {postcode}: {data}")  # Debugging
     return None
 
 def haversine(lon1, lat1, lon2, lat2):
@@ -176,46 +177,92 @@ def logout():
     # Redirect user to login form
     return redirect("/")
 
-@app.route("/buy")
+@app.route("/buy", methods=["GET", "POST"])
 @login_required
 def buy():
     if request.method == "POST":
+        product = request.form.get("product").strip()
+        buyer_postcode = cur.execute("SELECT postcode FROM users WHERE id=?", (session["user_id"],)).fetchone()[0]
+        print(f"Buyer postcode: {buyer_postcode}")
 
-        product = request.form.get("product")
-
-        buyer_postcode = cur.execute("SELECT postcode FROM users WHERE id=?", (session["user_id"],)).fetchone()
-
-        buyer_coordinates = get_coordinates(buyer_postcode)
-        if not buyer_coordinates:
-            flash ("Postcode does not exist", "danger")
+        buyer_coords = get_coordinates(buyer_postcode)
+        print(f"Buyer Coordinates: {buyer_coords}")
+        if not buyer_coords:
+            flash("Invalid postcode!", "danger")
             return redirect("/buy")
-        
-        sellers = cur.execute("SELECT id, postcode, product, price FROM transactions WHERE product=?", (product,)).fetchall()
+
+        # Fetch sellers selling the product
+        sellers = cur.execute("""
+            SELECT transactions.id, transactions.postcode, transactions.product, transactions.price, users.username, users.email 
+            FROM transactions 
+            JOIN users ON transactions.user_id = users.id 
+            WHERE transactions.product=?
+        """, (product,)).fetchall()
 
         results = []
         for seller in sellers:
-            seller_coordinates = get_coordinates(seller[3])
-            if not seller_coordinates:
+            seller_postcode = seller[1]
+            seller_coords = get_coordinates(seller_postcode)
+            print(f"Seller Coordinates: {seller_coords}")
+
+            if not seller_coords:
                 continue
 
-            distance = haversine(buyer_coordinates[0], buyer_coordinates[1], seller_coordinates[0], seller_coordinates[1])
-            name = cur.execute("SELECT username FROM users WHERE id=?", (seller[0],)).fetchone()
+            distance = haversine(
+                float(buyer_coords[1]), float(buyer_coords[0]),  # Ensure float values
+                float(seller_coords[1]), float(seller_coords[0]) 
+            )
 
             results.append({
-                "username": name,
-                "product": seller[1],
-                "price": seller[2],
-                "postcode": seller[3],
-                "distance": round(distance, 2)
+                "username": seller[4],  
+                "product": seller[2],  
+                "price": round(float(seller[3]), 2),  # Ensure price is stored as a float  
+                "postcode": seller_postcode,
+                "distance": round(distance, 2),
+                "email": seller[5]
             })
 
-        results.sort(key=lambda x: x["distance"])
+        results.sort(key=lambda x: x["distance"]) 
 
         return render_template("buy.html", results=results)
-    
+
     return render_template("buy.html", results=None)
 
-@app.route("/sell")
+@app.route("/sell", methods=["GET", "POST"])
 @login_required
 def sell():
-    return render_template("sell.html")
+    user_id = session["user_id"]
+
+    # Fetch seller's postcode from users table
+    seller_postcode = cur.execute("SELECT postcode FROM users WHERE id=?", (user_id,)).fetchone()[0]
+
+    if request.method == "POST":
+        product = request.form.get("product").strip()
+        price = request.form.get("price")
+        quantity = request.form.get("quantity")
+
+        if not product or not price or not quantity:
+            flash("All fields are required!", "danger")
+            return redirect("/sell")
+
+        # Insert into transactions table
+        cur.execute(
+            "INSERT INTO transactions (user_id, product, price, postcode, quantity) VALUES (?, ?, ?, ?, ?)",
+            (user_id, product, price, seller_postcode, quantity)
+        )
+        con.commit()
+
+        flash("Product listed successfully!", "success")
+        return redirect("/sell")
+
+    # Fetch seller's current listings
+    listings = cur.execute("SELECT product, price, quantity, postcode, timestamp FROM transactions WHERE user_id=?",(user_id,)).fetchall()
+
+    return render_template("sell.html", listings=listings)
+
+@app.route("/about")
+@login_required
+def about():
+    "Homepage"
+
+    return render_template("about.html")

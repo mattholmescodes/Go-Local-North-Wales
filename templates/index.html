@@ -5,15 +5,19 @@
 {% endblock %}
 
 {% block main %}
-    <h1 class="mt-4">Welcome to Go Local North Wales!</h1>
-    <br>
-    <p>Discover and support local businesses by buying and selling goods within your community.</p>
-    <br>
-    <div class="button-container">
-        <a href="/buy" class="btn-custom btn-buy">Browse Products</a>
-        <a href="/why" class="btn-custom btn-why">Why Go Local?</a>        
-        {% if session["user_type"] == "seller" %}
-        <a href="/sell" class="btn btn-sell btn-custom">Sell Products</a>
-    {% endif %}            
+        <div class="text-content">
+            <h1 class="mt-4">Welcome to Go Local North Wales!</h1>
+            <p>Discover and support local businesses by buying and selling goods within your community.</p>
+
+            <div class="button-container">
+                <a href="/buy" class="btn-custom btn-buy">Browse Products</a>
+                <a href="/why" class="btn-custom btn-why">Why Go Local?</a>
+                {% if session["user_type"] == "seller" %}
+                    <a href="/sell" class="btn-custom btn-sell">Sell Products</a>
+                {% endif %}
+            </div>
+        </div>
     </div>
 {% endblock %}
+
+
